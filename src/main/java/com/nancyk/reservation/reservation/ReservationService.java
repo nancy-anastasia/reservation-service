@@ -6,6 +6,7 @@ import com.nancyk.reservation.common.exception.ResourceInactiveException;
 import com.nancyk.reservation.common.exception.ResourceNotFoundException;
 import com.nancyk.reservation.resource.Resource;
 import com.nancyk.reservation.resource.ResourceRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,18 @@ public class ReservationService {
             throw new InvalidReservationPeriodException();
         }
 
+        boolean overlaps =
+                reservationRepository.existsOverlappingReservation(
+                        request.resourceId(),
+                        ReservationStatus.CONFIRMED,
+                        request.startsAt(),
+                        request.endsAt()
+                );
+
+        if (overlaps) {
+            throw new ReservationConflictException(request.resourceId());
+        }
+
         Reservation reservation = new Reservation(
                 resource,
                 request.reservedBy(),
@@ -46,20 +59,11 @@ public class ReservationService {
                 request.endsAt()
         );
 
-        boolean overlaps =
-                reservationRepository.existsOverlappingReservation(
-                                request.resourceId(),
-                                ReservationStatus.CONFIRMED,
-                                request.startsAt(),
-                                request.endsAt()
-                        );
-
-        if (overlaps) {
+        try {
+            Reservation saved = reservationRepository.saveAndFlush(reservation);
+            return ReservationResponse.from(saved);
+        } catch (DataIntegrityViolationException exception) {
             throw new ReservationConflictException(request.resourceId());
         }
-
-        Reservation saved = reservationRepository.save(reservation);
-
-        return ReservationResponse.from(saved);
     }
 }

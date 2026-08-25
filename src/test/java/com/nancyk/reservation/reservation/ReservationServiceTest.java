@@ -57,7 +57,7 @@ class ReservationServiceTest {
         when(resourceRepository.findById(1L))
                 .thenReturn(Optional.of(resource));
 
-        when(reservationRepository.save(any(Reservation.class)))
+        when(reservationRepository.saveAndFlush(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         ReservationResponse response = reservationService.create(request);
@@ -70,7 +70,7 @@ class ReservationServiceTest {
         assertThat(response.status()).isEqualTo(ReservationStatus.CONFIRMED);
 
         verify(resourceRepository).findById(1L);
-        verify(reservationRepository).save(any(Reservation.class));
+        verify(reservationRepository).saveAndFlush(any(Reservation.class));
     }
 
     @Test
@@ -89,7 +89,7 @@ class ReservationServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Resource not found: 42");
 
-        verify(reservationRepository, never()).save(any());
+        verify(reservationRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -113,7 +113,7 @@ class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.create(request))
                 .isInstanceOf(InvalidReservationPeriodException.class);
 
-        verify(reservationRepository, never()).save(any());
+        verify(reservationRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -146,6 +146,6 @@ class ReservationServiceTest {
                 .isInstanceOf(ReservationConflictException.class)
                 .hasMessage("Resource already has an overlapping reservation: 1");
 
-        verify(reservationRepository, never()).save(any());
+        verify(reservationRepository, never()).saveAndFlush(any());
     }
 }
