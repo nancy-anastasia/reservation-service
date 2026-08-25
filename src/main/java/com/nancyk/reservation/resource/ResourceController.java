@@ -1,6 +1,7 @@
 package com.nancyk.reservation.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -47,8 +48,16 @@ public class ResourceController {
             description = "Returns resources with optional filtering by type, active status, and name."
     )
     public List<ResourceResponse> findAll(
+            @Parameter(description = "Filter by resource type")
             @RequestParam(required = false) ResourceType type,
+
+            @Parameter(description = "Filter by active status")
             @RequestParam(required = false) Boolean active,
+
+            @Parameter(
+                    description = "Partial match on the reservable resource name",
+                    example = "conference"
+            )
             @RequestParam(required = false) String name
     ) {
         ResourceFilter filter = new ResourceFilter(type, active, name);
