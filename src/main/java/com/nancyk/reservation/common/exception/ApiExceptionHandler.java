@@ -86,4 +86,16 @@ public class ApiExceptionHandler {
                 request.getRequestURI()
         );
     }
+
+    @ExceptionHandler(ReservationAlreadyCancelledException.class)
+    public ResponseEntity<ErrorResponse> handleReservationAlreadyCancelled(
+            ReservationAlreadyCancelledException exception,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
 }
