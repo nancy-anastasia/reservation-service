@@ -42,6 +42,15 @@ public class ResourceService {
                 .toList();
     }
 
+    public ResourceResponse findById(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(resourceId)
+                );
+
+        return ResourceResponse.from(resource);
+    }
+
     @Transactional
     public ResourceResponse deactivate(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId)

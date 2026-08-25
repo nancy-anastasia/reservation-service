@@ -16,6 +16,9 @@ class ResourceControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ResourceTestFactory resourceTestFactory;
+
     @Test
     void shouldCreateResource() throws Exception {
         mockMvc.perform(post("/api/resources")
@@ -53,5 +56,28 @@ class ResourceControllerIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[?(@.name == 'Desk 1')]").exists());
+    }
+
+    @Test
+    void shouldGetResourceById() throws Exception {
+        Resource resource = resourceTestFactory.createActiveResource();
+
+        mockMvc.perform(get("/api/resources/{id}", resource.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(resource.getId()))
+                .andExpect(jsonPath("$.name").value("Conference Room A"))
+                .andExpect(jsonPath("$.type").value("MEETING_ROOM"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.createdAt").exists());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenResourceDoesNotExist() throws Exception {
+        mockMvc.perform(get("/api/resources/{id}", 999999L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Resource not found: 999999"))
+                .andExpect(jsonPath("$.path").value("/api/resources/999999"));
     }
 }
