@@ -30,8 +30,13 @@ public class ResourceService {
         return ResourceResponse.from(savedResource);
     }
 
-    public List<ResourceResponse> findAll() {
-        return resourceRepository.findAll()
+    public List<ResourceResponse> findAll(ResourceFilter filter) {
+        var specification =
+                ResourceSpecifications.hasType(filter.type())
+                        .and(ResourceSpecifications.hasActive(filter.active()))
+                        .and(ResourceSpecifications.nameContains(filter.name()));
+
+        return resourceRepository.findAll(specification)
                 .stream()
                 .map(ResourceResponse::from)
                 .toList();
