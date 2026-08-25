@@ -1,7 +1,9 @@
 package com.nancyk.reservation.reservation;
 
 import com.nancyk.reservation.common.exception.InvalidReservationPeriodException;
+import com.nancyk.reservation.common.exception.ReservationAlreadyCancelledException;
 import com.nancyk.reservation.common.exception.ReservationConflictException;
+import com.nancyk.reservation.common.exception.ReservationNotFoundException;
 import com.nancyk.reservation.common.exception.ResourceInactiveException;
 import com.nancyk.reservation.common.exception.ResourceNotFoundException;
 import com.nancyk.reservation.resource.Resource;
@@ -9,6 +11,8 @@ import com.nancyk.reservation.resource.ResourceRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -65,5 +69,39 @@ public class ReservationService {
         } catch (DataIntegrityViolationException exception) {
             throw new ReservationConflictException(request.resourceId());
         }
+    }
+
+    public ReservationResponse findById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() ->
+                        new ReservationNotFoundException(reservationId)
+                );
+
+        return ReservationResponse.from(reservation);
+    }
+
+    public List<ReservationResponse> findAll() {
+        return reservationRepository.findAll()
+                .stream()
+                .map(ReservationResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public ReservationResponse cancel(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() ->
+                        new ReservationNotFoundException(reservationId)
+                );
+
+        if (reservation.isCancelled()) {
+            throw new ReservationAlreadyCancelledException(reservationId);
+        }
+
+        reservation.cancel();
+
+        Reservation saved = reservationRepository.saveAndFlush(reservation);
+
+        return ReservationResponse.from(saved);
     }
 }

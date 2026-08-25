@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
@@ -20,5 +22,20 @@ public class ReservationController {
             @Valid @RequestBody CreateReservationRequest request
     ) {
         return reservationService.create(request);
+    }
+
+    @GetMapping
+    public List<ReservationResponse> findAll() {
+        return reservationService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ReservationResponse findById(@PathVariable Long id) {
+        return reservationService.findById(id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ReservationResponse cancel(@PathVariable Long id) {
+        return reservationService.cancel(id);
     }
 }
