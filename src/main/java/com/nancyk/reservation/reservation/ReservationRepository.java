@@ -1,13 +1,15 @@
 package com.nancyk.reservation.reservation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 
 public interface ReservationRepository
-        extends JpaRepository<Reservation, Long> {
+        extends JpaRepository<Reservation, Long>,
+        JpaSpecificationExecutor<Reservation> {
 
     @Query("""
         SELECT COUNT(r) > 0

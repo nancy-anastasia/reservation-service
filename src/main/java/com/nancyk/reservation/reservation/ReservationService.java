@@ -80,8 +80,19 @@ public class ReservationService {
         return ReservationResponse.from(reservation);
     }
 
-    public List<ReservationResponse> findAll() {
-        return reservationRepository.findAll()
+    public List<ReservationResponse> findAll(ReservationFilter filter) {
+        var specification =
+                ReservationSpecifications.hasResourceId(filter.resourceId())
+                        .and(ReservationSpecifications.hasStatus(filter.status()))
+                        .and(ReservationSpecifications.reservedByContains(
+                                filter.reservedBy()
+                        ))
+                        .and(ReservationSpecifications.overlapsTimeRange(
+                                filter.from(),
+                                filter.to()
+                        ));
+
+        return reservationRepository.findAll(specification)
                 .stream()
                 .map(ReservationResponse::from)
                 .toList();

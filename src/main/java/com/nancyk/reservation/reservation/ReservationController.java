@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -31,8 +33,22 @@ public class ReservationController {
     }
 
     @GetMapping
-    public List<ReservationResponse> findAll() {
-        return reservationService.findAll();
+    public List<ReservationResponse> findAll(
+            @RequestParam(required = false) Long resourceId,
+            @RequestParam(required = false) ReservationStatus status,
+            @RequestParam(required = false) String reservedBy,
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to
+    ) {
+        ReservationFilter filter = new ReservationFilter(
+                resourceId,
+                status,
+                reservedBy,
+                from,
+                to
+        );
+
+        return reservationService.findAll(filter);
     }
 
     @GetMapping("/{id}")
