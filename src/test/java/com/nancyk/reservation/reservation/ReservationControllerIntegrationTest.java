@@ -45,4 +45,66 @@ class ReservationControllerIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.status").value("CONFIRMED"))
                 .andExpect(jsonPath("$.createdAt").exists());
     }
+
+    @Test
+    void shouldRejectOverlappingReservation() throws Exception {
+        Resource resource = resourceTestFactory.createActiveResource();
+
+        mockMvc.perform(post("/api/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "resourceId": %d,
+                              "reservedBy": "Nancy",
+                              "startsAt": "2026-08-26T09:00:00Z",
+                              "endsAt": "2026-08-26T10:00:00Z"
+                            }
+                            """.formatted(resource.getId())))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "resourceId": %d,
+                              "reservedBy": "Alice",
+                              "startsAt": "2026-08-26T09:30:00Z",
+                              "endsAt": "2026-08-26T10:30:00Z"
+                            }
+                            """.formatted(resource.getId())))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message")
+                        .value("Resource already has an overlapping reservation: "
+                                + resource.getId()));
+    }
+
+    @Test
+    void shouldAllowBackToBackReservations() throws Exception {
+        Resource resource = resourceTestFactory.createActiveResource();
+
+        mockMvc.perform(post("/api/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "resourceId": %d,
+                              "reservedBy": "Nancy",
+                              "startsAt": "2026-08-26T09:00:00Z",
+                              "endsAt": "2026-08-26T10:00:00Z"
+                            }
+                            """.formatted(resource.getId())))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "resourceId": %d,
+                              "reservedBy": "Alice",
+                              "startsAt": "2026-08-26T10:00:00Z",
+                              "endsAt": "2026-08-26T11:00:00Z"
+                            }
+                            """.formatted(resource.getId())))
+                .andExpect(status().isCreated());
+    }
 }

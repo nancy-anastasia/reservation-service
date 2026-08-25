@@ -1,6 +1,7 @@
 package com.nancyk.reservation.reservation;
 
 import com.nancyk.reservation.common.exception.InvalidReservationPeriodException;
+import com.nancyk.reservation.common.exception.ReservationConflictException;
 import com.nancyk.reservation.common.exception.ResourceNotFoundException;
 import com.nancyk.reservation.resource.Resource;
 import com.nancyk.reservation.resource.ResourceRepository;
@@ -111,6 +112,39 @@ class ReservationServiceTest {
 
         assertThatThrownBy(() -> reservationService.create(request))
                 .isInstanceOf(InvalidReservationPeriodException.class);
+
+        verify(reservationRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenReservationOverlapsExistingReservation() {
+        Resource resource = new Resource(
+                "Conference Room A",
+                "Large conference room",
+                ResourceType.MEETING_ROOM
+        );
+
+        when(resourceRepository.findById(1L))
+                .thenReturn(Optional.of(resource));
+
+        when(reservationRepository.existsOverlappingReservation(
+                        1L,
+                        ReservationStatus.CONFIRMED,
+                        Instant.parse("2026-08-26T09:30:00Z"),
+                        Instant.parse("2026-08-26T10:30:00Z")
+                ))
+                .thenReturn(true);
+
+        CreateReservationRequest request = new CreateReservationRequest(
+                1L,
+                "Nancy",
+                Instant.parse("2026-08-26T09:30:00Z"),
+                Instant.parse("2026-08-26T10:30:00Z")
+        );
+
+        assertThatThrownBy(() -> reservationService.create(request))
+                .isInstanceOf(ReservationConflictException.class)
+                .hasMessage("Resource already has an overlapping reservation: 1");
 
         verify(reservationRepository, never()).save(any());
     }

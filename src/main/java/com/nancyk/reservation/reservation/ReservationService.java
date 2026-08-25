@@ -1,6 +1,7 @@
 package com.nancyk.reservation.reservation;
 
 import com.nancyk.reservation.common.exception.InvalidReservationPeriodException;
+import com.nancyk.reservation.common.exception.ReservationConflictException;
 import com.nancyk.reservation.common.exception.ResourceInactiveException;
 import com.nancyk.reservation.common.exception.ResourceNotFoundException;
 import com.nancyk.reservation.resource.Resource;
@@ -44,6 +45,18 @@ public class ReservationService {
                 request.startsAt(),
                 request.endsAt()
         );
+
+        boolean overlaps =
+                reservationRepository.existsOverlappingReservation(
+                                request.resourceId(),
+                                ReservationStatus.CONFIRMED,
+                                request.startsAt(),
+                                request.endsAt()
+                        );
+
+        if (overlaps) {
+            throw new ReservationConflictException(request.resourceId());
+        }
 
         Reservation saved = reservationRepository.save(reservation);
 

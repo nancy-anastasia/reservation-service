@@ -62,4 +62,16 @@ public class ApiExceptionHandler {
 
         return ResponseEntity.status(status).body(errorResponse);
     }
+
+    @ExceptionHandler(ReservationConflictException.class)
+    public ResponseEntity<ErrorResponse> handleReservationConflict(
+            ReservationConflictException exception,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
 }
