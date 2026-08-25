@@ -98,4 +98,16 @@ public class ApiExceptionHandler {
                 request.getRequestURI()
         );
     }
+
+    @ExceptionHandler(ResourceAlreadyInactiveException.class)
+    public ResponseEntity<ErrorResponse> handleResourceAlreadyInactive(
+            ResourceAlreadyInactiveException exception,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
 }

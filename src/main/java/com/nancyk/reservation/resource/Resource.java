@@ -76,4 +76,12 @@ public class Resource {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public void deactivate() {
+        this.active = false;
+    }
+
+    public boolean isInactive() {
+        return !active;
+    }
 }

@@ -1,5 +1,7 @@
 package com.nancyk.reservation.resource;
 
+import com.nancyk.reservation.common.exception.ResourceAlreadyInactiveException;
+import com.nancyk.reservation.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,5 +35,23 @@ public class ResourceService {
                 .stream()
                 .map(ResourceResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public ResourceResponse deactivate(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(resourceId)
+                );
+
+        if (resource.isInactive()) {
+            throw new ResourceAlreadyInactiveException(resourceId);
+        }
+
+        resource.deactivate();
+
+        Resource saved = resourceRepository.saveAndFlush(resource);
+
+        return ResourceResponse.from(saved);
     }
 }
