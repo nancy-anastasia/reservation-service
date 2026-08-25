@@ -1,6 +1,8 @@
 package com.nancyk.reservation.reservation;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,12 +35,13 @@ public class ReservationController {
     }
 
     @GetMapping
-    public List<ReservationResponse> findAll(
+    public Page<ReservationResponse> findAll(
             @RequestParam(required = false) Long resourceId,
             @RequestParam(required = false) ReservationStatus status,
             @RequestParam(required = false) String reservedBy,
             @RequestParam(required = false) Instant from,
-            @RequestParam(required = false) Instant to
+            @RequestParam(required = false) Instant to,
+            Pageable pageable
     ) {
         ReservationFilter filter = new ReservationFilter(
                 resourceId,
@@ -48,7 +51,7 @@ public class ReservationController {
                 to
         );
 
-        return reservationService.findAll(filter);
+        return reservationService.findAll(filter, pageable);
     }
 
     @GetMapping("/{id}")

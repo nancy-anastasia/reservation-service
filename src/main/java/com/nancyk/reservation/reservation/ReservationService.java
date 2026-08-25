@@ -9,6 +9,8 @@ import com.nancyk.reservation.common.exception.ResourceNotFoundException;
 import com.nancyk.reservation.resource.Resource;
 import com.nancyk.reservation.resource.ResourceRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +82,10 @@ public class ReservationService {
         return ReservationResponse.from(reservation);
     }
 
-    public List<ReservationResponse> findAll(ReservationFilter filter) {
+    public Page<ReservationResponse> findAll(
+            ReservationFilter filter,
+            Pageable pageable
+    ) {
         var specification =
                 ReservationSpecifications.hasResourceId(filter.resourceId())
                         .and(ReservationSpecifications.hasStatus(filter.status()))
@@ -92,10 +97,8 @@ public class ReservationService {
                                 filter.to()
                         ));
 
-        return reservationRepository.findAll(specification)
-                .stream()
-                .map(ReservationResponse::from)
-                .toList();
+        return reservationRepository.findAll(specification, pageable)
+                .map(ReservationResponse::from);
     }
 
     @Transactional

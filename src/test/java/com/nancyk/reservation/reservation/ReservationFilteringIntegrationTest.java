@@ -45,8 +45,9 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
 
         mockMvc.perform(get("/api/reservations"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalElements").value(2));
     }
 
     @Test
@@ -76,9 +77,10 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/reservations")
                         .param("status", "CONFIRMED"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].reservedBy").value("Nancy"))
-                .andExpect(jsonPath("$[0].status").value("CONFIRMED"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].reservedBy").value("Nancy"))
+                .andExpect(jsonPath("$.content[0].status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
@@ -103,9 +105,10 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/reservations")
                         .param("resourceId", resourceA.getId().toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].resourceId").value(resourceA.getId()))
-                .andExpect(jsonPath("$[0].reservedBy").value("Nancy"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].resourceId").value(resourceA.getId()))
+                .andExpect(jsonPath("$.content[0].reservedBy").value("Nancy"))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
@@ -129,8 +132,9 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/reservations")
                         .param("reservedBy", "nancy"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].reservedBy").value("Nancy"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].reservedBy").value("Nancy"))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
@@ -169,8 +173,9 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
                         .param("resourceId", resourceA.getId().toString())
                         .param("status", "CONFIRMED"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].reservedBy").value("Nancy"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].reservedBy").value("Nancy"))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
@@ -195,8 +200,9 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
                         .param("from", "2026-08-26T09:30:00Z")
                         .param("to", "2026-08-26T10:30:00Z"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].reservedBy").value("Nancy"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].reservedBy").value("Nancy"))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
@@ -214,7 +220,8 @@ class ReservationFilteringIntegrationTest extends AbstractIntegrationTest {
                         .param("from", "2026-08-26T10:00:00Z")
                         .param("to", "2026-08-26T11:00:00Z"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0))
+                .andExpect(jsonPath("$.totalElements").value(0));
     }
 
     private Long createReservation(

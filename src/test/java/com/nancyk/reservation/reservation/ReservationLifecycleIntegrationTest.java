@@ -51,9 +51,11 @@ class ReservationLifecycleIntegrationTest extends AbstractIntegrationTest {
 
         mockMvc.perform(get("/api/reservations"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].reservedBy").value("Nancy"))
-                .andExpect(jsonPath("$[0].status").value("CONFIRMED"));
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].reservedBy").value("Nancy"))
+                .andExpect(jsonPath("$.content[0].status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
