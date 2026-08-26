@@ -22,6 +22,7 @@ The project uses PostgreSQL for persistence, Flyway for database migrations, Tes
 - Combine multiple reservation filters dynamically
 - Paginate and sort reservation results
 - Manage database schema changes with Flyway migrations
+- Test business logic with isolated unit tests
 - Run integration tests against PostgreSQL using Testcontainers
 - Explore and test the API through Swagger UI
 - Run static analysis with PMD and SpotBugs
@@ -84,13 +85,6 @@ Interactive API documentation is available through Swagger UI:
 
 ```text
 http://localhost:8080/swagger-ui.html
-```
-
-The generated OpenAPI specification is also available in JSON and YAML formats:
-
-```text
-http://localhost:8080/v3/api-docs
-http://localhost:8080/v3/api-docs.yaml
 ```
 
 To stop PostgreSQL:
