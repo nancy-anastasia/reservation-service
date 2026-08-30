@@ -54,7 +54,7 @@ class ReservationServiceTest {
                 Instant.parse("2026-08-26T10:00:00Z")
         );
 
-        when(resourceRepository.findById(1L))
+        when(resourceRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(resource));
 
         when(reservationRepository.saveAndFlush(any(Reservation.class)))
@@ -69,13 +69,13 @@ class ReservationServiceTest {
                 .isEqualTo(Instant.parse("2026-08-26T10:00:00Z"));
         assertThat(response.status()).isEqualTo(ReservationStatus.CONFIRMED);
 
-        verify(resourceRepository).findById(1L);
+        verify(resourceRepository).findByIdForUpdate(1L);
         verify(reservationRepository).saveAndFlush(any(Reservation.class));
     }
 
     @Test
     void shouldThrowWhenResourceDoesNotExist() {
-        when(resourceRepository.findById(42L))
+        when(resourceRepository.findByIdForUpdate(42L))
                 .thenReturn(Optional.empty());
 
         CreateReservationRequest request = new CreateReservationRequest(
@@ -100,7 +100,7 @@ class ReservationServiceTest {
                 ResourceType.MEETING_ROOM
         );
 
-        when(resourceRepository.findById(1L))
+        when(resourceRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(resource));
 
         CreateReservationRequest request = new CreateReservationRequest(
@@ -124,7 +124,7 @@ class ReservationServiceTest {
                 ResourceType.MEETING_ROOM
         );
 
-        when(resourceRepository.findById(1L))
+        when(resourceRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(resource));
 
         when(reservationRepository.existsOverlappingReservation(

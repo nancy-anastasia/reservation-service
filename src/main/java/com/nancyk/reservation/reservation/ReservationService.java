@@ -31,7 +31,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse create(CreateReservationRequest request) {
-        Resource resource = resourceRepository.findById(request.resourceId())
+        Resource resource = resourceRepository.findByIdForUpdate(request.resourceId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(request.resourceId())
                 );

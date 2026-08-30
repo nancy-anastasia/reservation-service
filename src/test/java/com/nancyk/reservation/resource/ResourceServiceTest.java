@@ -89,7 +89,7 @@ class ResourceServiceTest {
                 ResourceType.MEETING_ROOM
         );
 
-        when(resourceRepository.findById(1L))
+        when(resourceRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(resource));
 
         when(resourceRepository.saveAndFlush(resource))
@@ -100,13 +100,13 @@ class ResourceServiceTest {
         assertThat(response.active()).isFalse();
         assertThat(resource.isInactive()).isTrue();
 
-        verify(resourceRepository).findById(1L);
+        verify(resourceRepository).findByIdForUpdate(1L);
         verify(resourceRepository).saveAndFlush(resource);
     }
 
     @Test
     void shouldThrowWhenDeactivatingMissingResource() {
-        when(resourceRepository.findById(42L))
+        when(resourceRepository.findByIdForUpdate(42L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> resourceService.deactivate(42L))
@@ -126,7 +126,7 @@ class ResourceServiceTest {
 
         resource.deactivate();
 
-        when(resourceRepository.findById(1L))
+        when(resourceRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(resource));
 
         assertThatThrownBy(() -> resourceService.deactivate(1L))

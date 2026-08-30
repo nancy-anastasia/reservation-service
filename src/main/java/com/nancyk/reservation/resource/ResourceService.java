@@ -53,7 +53,7 @@ public class ResourceService {
 
     @Transactional
     public ResourceResponse deactivate(Long resourceId) {
-        Resource resource = resourceRepository.findById(resourceId)
+        Resource resource = resourceRepository.findByIdForUpdate(resourceId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(resourceId)
                 );
